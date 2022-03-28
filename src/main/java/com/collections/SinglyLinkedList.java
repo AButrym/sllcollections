@@ -3,7 +3,7 @@ package com.collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class SinglyLinkedList<T> implements Stack<T> {
+public class SinglyLinkedList<T> implements Stack<T>, Queue<T> {
     private static class Node<V> {
         V value;
         Node<V> next;
@@ -19,6 +19,7 @@ public class SinglyLinkedList<T> implements Stack<T> {
     }
 
     final Node<T> head = new Node<>();
+    Node<T> tail = head;
     int size = 0;
 
     @Override
@@ -28,13 +29,16 @@ public class SinglyLinkedList<T> implements Stack<T> {
 
     @Override
     public void clear() {
-
+        if (size != 0) {
+            head.next = head;
+            tail = head;
+            size = 0;
+        }
     }
 
     @Override
     public boolean push(T element) {
-        var newNode = new Node<T>(element, head.next);
-        head.next = newNode;
+        head.next = new Node<>(element, head.next);
         size++;
         return true;
     }
@@ -46,9 +50,23 @@ public class SinglyLinkedList<T> implements Stack<T> {
         }
         var firstNode = head.next;
         head.next = firstNode.next;
-        firstNode.next = null;
         size--;
+        if (size == 0) {
+            tail = head;
+        }
         return firstNode.value;
+    }
+
+    @Override
+    public boolean enqueue(T element) {
+        tail = tail.next = new Node<>(element, head);
+        size++;
+        return true;
+    }
+
+    @Override
+    public T dequeue() {
+        return pop();
     }
 
     @Override
@@ -61,6 +79,39 @@ public class SinglyLinkedList<T> implements Stack<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return null;
+        return new HeadToTailIterator();
+    }
+
+    private class HeadToTailIterator implements Iterator<T> {
+        Node<T> cursor = head;
+        @Override
+        public boolean hasNext() {
+            return cursor.next != head;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            cursor = cursor.next;
+            return cursor.value;
+        }
+
+        @Override
+        public void remove() {
+            // TOD
+        }
+    }
+
+    public static void main(String[] args) {
+        Queue<String> col = new SinglyLinkedList<>();
+        col.enqueue("#1");
+        col.enqueue("#2");
+        col.enqueue("#3");
+        col.enqueue("#4");
+        for (var element : col) {
+            System.out.println(element);
+        }
     }
 }
