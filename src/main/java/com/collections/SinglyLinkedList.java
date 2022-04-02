@@ -2,6 +2,7 @@ package com.collections;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.StringJoiner;
 
 public class SinglyLinkedList<T> implements Stack<T>, Queue<T> {
     private static class Node<V> {
@@ -21,6 +22,33 @@ public class SinglyLinkedList<T> implements Stack<T>, Queue<T> {
     final Node<T> head = new Node<>();
     Node<T> tail = head;
     int size = 0;
+
+    @Override
+    public void reverse() {
+        if (size == 0) {
+            return;
+        }
+        Node<T> cursor = head.next.next;
+        Node<T> newChain = head.next;
+        newChain.next = head;
+        tail = newChain;
+        while (cursor != head) {
+            var cur = cursor;
+            cursor = cursor.next;
+            cur.next = newChain;
+            newChain = cur;
+        }
+        head.next = newChain;
+    }
+
+    @Override
+    public String toString() {
+        var res  = new StringJoiner(", ", "[", "]");
+        for (var el : this) {
+            res.add(el.toString());
+        }
+        return res.toString();
+    }
 
     @Override
     public int size() {
@@ -110,8 +138,10 @@ public class SinglyLinkedList<T> implements Stack<T>, Queue<T> {
         col.enqueue("#2");
         col.enqueue("#3");
         col.enqueue("#4");
-        for (var element : col) {
-            System.out.println(element);
-        }
+        // System.out.println(col);
+
+        col.reverse();
+
+        assert col.toString().equals("[#4, #32, #2, #1]") : "Error message";
     }
 }
